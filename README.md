@@ -13,7 +13,7 @@
 Необходимо скачать **VagrantBox** для **almalinux/9** версии **v9.4.20240805** и добавить его в **Vagrant** под именем **almalinux/9/v9.4.20240805**. Сделать это можно командами:
 
 ```shell
-curl -OL https://app.vagrantup.com/almalinux/boxes/9/versions/9.4.20240805/providers/virtualbox/amd64/vagrant.box
+curl -OL https://app.vagrantup.com/almalinux/boxes/9/versions/9.4.20240805/providers/libvirt/amd64/vagrant.box
 vagrant box add vagrant.box --name "almalinux/9/v9.4.20240805"
 rm vagrant.box
 ```
