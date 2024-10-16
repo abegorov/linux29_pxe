@@ -1,0 +1,6 @@
+---
+- name: PXE server provision
+  hosts: pxe-server
+  become: true
+  gather_facts: false
+  roles: []
