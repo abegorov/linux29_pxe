@@ -1,0 +1,64 @@
+---
+kea_dhcpv4_valid_lifetime: 3600
+kea_dhcpv4_renew_timer: 1800
+kea_dhcpv4_rebind_timer: 3150
+kea_dhcpv4_interface: '{{ undef() }}'
+kea_dhcpv4_subnet: '{{ undef() }}'
+kea_dhcpv4_pool: '{{ undef() }}'
+kea_dhcpv4_tftp_server: '{{ undef() }}'
+kea_dhcpv4_http_server: '{{ undef() }}'
+kea_dhcpv4_ipxe_script: 'http://{{ kea_dhcpv4_http_server }}/script.ipxe'
+kea_dhcpv4_config:
+  Dhcp4:
+    valid-lifetime: '{{ kea_dhcpv4_valid_lifetime }}'
+    renew-timer: '{{ kea_dhcpv4_renew_timer }}'
+    rebind-timer: '{{ kea_dhcpv4_rebind_timer }}'
+    interfaces-config:
+      interfaces:
+        - '{{ kea_dhcpv4_interface }}'
+    lease-database:
+      type: memfile
+      persist: true
+      name: /var/lib/kea/dhcp4.leases
+    subnet4:
+      - subnet: '{{ kea_dhcpv4_subnet }}'
+        interface: '{{ kea_dhcpv4_interface }}'
+        pools:
+          - pool: '{{ kea_dhcpv4_pool }}'
+    client-classes:
+      - name: iPXE
+        test: substring(option[77].hex,0,4) == 'iPXE'
+        option-data:
+          - space: dhcp4
+            name: boot-file-name
+            code: 67
+            data: '{{ kea_dhcpv4_ipxe_script }}'
+      - name: BIOS
+        test: not member('iPXE') and option[93].hex == 0x0000
+        option-data:
+          - space: dhcp4
+            name: tftp-server-name
+            code: 66
+            data: '{{ kea_dhcpv4_tftp_server }}'
+          - space: dhcp4
+            name: boot-file-name
+            code: 67
+            data: undionly.kpxe
+      - name: UEFI
+        test: not member('iPXE') and option[93].hex == 0x0007
+        option-data:
+          - space: dhcp4
+            name: tftp-server-name
+            code: 66
+            data: '{{ kea_dhcpv4_tftp_server }}'
+          - space: dhcp4
+            name: boot-file-name
+            code: 67
+            data: ipxe.efi
+      - name: HTTP
+        test: not member('iPXE') and option[93].hex == 0x0010
+        option-data:
+          - space: dhcp4
+            name: boot-file-name
+            code: 67
+            data: http://{{ kea_dhcpv4_http_server }}/ipxe.efi

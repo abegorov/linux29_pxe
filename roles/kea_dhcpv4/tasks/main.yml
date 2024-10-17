@@ -1,0 +1,20 @@
+- name: Install kea dhcpv4, dhcpv6 and ddns server
+  ansible.builtin.dnf:
+    name: kea
+    state: present
+
+- name: Configure kea-dhcp4 server
+  ansible.builtin.copy:
+    content: "{{ kea_dhcpv4_config | to_nice_json }}\n"
+    dest: /etc/kea/kea-dhcp4.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart kea-dhcp4 service
+
+- name: Enable and start kea-dhcp4 service
+  ansible.builtin.systemd_service:
+    name: kea-dhcp4.service
+    enabled: true
+    state: started
+  ignore_errors: '{{ ansible_check_mode }}'

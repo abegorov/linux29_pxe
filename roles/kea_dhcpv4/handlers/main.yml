@@ -1,0 +1,6 @@
+---
+- name: Restart kea-dhcp4 service
+  ansible.builtin.systemd_service:
+    name: kea-dhcp4.service
+    state: restarted
+  ignore_errors: '{{ ansible_check_mode }}'
