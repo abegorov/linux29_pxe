@@ -9,12 +9,13 @@ Vagrant.configure("2") do |config|
     host.vm.host_name = 'pxe-server.internal'
     host.vm.provider :libvirt do |libvirt|
       libvirt.cpu_mode = 'host-passthrough'
-      libvirt.cpus = 1
-      libvirt.memory = 1024
+      libvirt.cpus = 2
+      libvirt.memory = 2048
     end
 
     host.vm.network :private_network, ip: '192.168.50.20',
-      libvirt__network_name: 'pxenet', libvirt__dhcp_enabled: false
+      libvirt__network_name: 'pxenet', libvirt__dhcp_enabled: false,
+      libvirt__forward_mode: 'veryisolated'
 
     host.vm.provision :ansible do |ansible|
       ansible.playbook = 'playbook.yml'
@@ -41,6 +42,7 @@ Vagrant.configure("2") do |config|
     end
 
     host.vm.network :private_network, auto_config: false,
-      libvirt__network_name: 'pxenet', libvirt__dhcp_enabled: false
+      libvirt__network_name: 'pxenet', libvirt__dhcp_enabled: false,
+      libvirt__forward_mode: 'veryisolated'
   end
 end
