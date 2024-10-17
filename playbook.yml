@@ -3,4 +3,7 @@
   hosts: pxe-server
   become: true
   gather_facts: false
-  roles: []
+  roles:
+    - epel_release
+    - tftp_boot
+    - kea_dhcpv4
