@@ -6,8 +6,8 @@ kea_dhcpv4_interface: '{{ undef() }}'
 kea_dhcpv4_subnet: '{{ undef() }}'
 kea_dhcpv4_pool: '{{ undef() }}'
 kea_dhcpv4_tftp_server: '{{ undef() }}'
-kea_dhcpv4_http_server: '{{ undef() }}'
-kea_dhcpv4_ipxe_script: 'http://{{ kea_dhcpv4_http_server }}/script.ipxe'
+kea_dhcpv4_ipxe_url: '{{ undef() }}'
+kea_dhcpv4_ipxe_script: '{{ undef() }}'
 kea_dhcpv4_config:
   Dhcp4:
     valid-lifetime: '{{ kea_dhcpv4_valid_lifetime }}'
@@ -61,4 +61,4 @@ kea_dhcpv4_config:
           - space: dhcp4
             name: boot-file-name
             code: 67
-            data: http://{{ kea_dhcpv4_http_server }}/ipxe.efi
+            data: '{{ kea_dhcpv4_ipxe_url }}'
