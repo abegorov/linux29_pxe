@@ -8,9 +8,10 @@ Vagrant.configure("2") do |config|
     host.vm.box = 'almalinux/9/v9.4.20240805'
     host.vm.host_name = 'pxe-server.internal'
     host.vm.provider :libvirt do |libvirt|
-      libvirt.cpu_mode = 'host-passthrough'
       libvirt.cpus = 2
-      libvirt.memory = 2048
+      libvirt.memory = 4096
+      libvirt.storage :file, size: '50G', type: 'qcow2',
+        bus: 'virtio', device: 'vdb'
     end
 
     host.vm.network :private_network, ip: '192.168.50.20',
@@ -27,9 +28,8 @@ Vagrant.configure("2") do |config|
   config.vm.define :'pxe-client', autostart: false do |host|
     host.vm.host_name = 'pxe-client.internal'
     host.vm.provider :libvirt do |libvirt|
-      libvirt.cpu_mode = 'host-passthrough'
       libvirt.cpus = 2
-      libvirt.memory = 2048
+      libvirt.memory = 12144
       libvirt.storage :file, size: '50G', type: 'qcow2',
         bus: 'virtio', device: 'vda'
 
