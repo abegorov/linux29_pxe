@@ -1,0 +1,21 @@
+---
+- name: Install nginx
+  ansible.builtin.dnf:
+    name: nginx
+    state: present
+
+- name: Configure nginx for network boot
+  ansible.builtin.template:
+    src: httpboot.conf
+    dest: /etc/nginx/default.d/httpboot.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload nginx service
+
+- name: Enable and start nginx service
+  ansible.builtin.systemd_service:
+    name: nginx.service
+    enabled: true
+    state: started
+  ignore_errors: '{{ ansible_check_mode }}'
