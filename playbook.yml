@@ -6,4 +6,6 @@
   roles:
     - epel_release
     - tftp_boot
+    - netboot
+    - http_boot
     - kea_dhcpv4
