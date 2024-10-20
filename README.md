@@ -52,12 +52,12 @@ virt-manager --connect qemu:///system --show-domain-console 29_pxe-client
 
 Начинается сетевая загрузка. Видно, что используется режим **UEFI**:
 
-[!UEFI BOOT](images/uefi_boot.png)
+![UEFI BOOT](images/uefi_boot.png)
 
 Запускается автоматическая установка:
 
-[!Autoinstall](images/autoinstall.png)
+![Autoinstall](images/autoinstall.png)
 
 Система настроена на загрузку с первого диска, поэтому автоматически загрузится после установки. Зайдём под пользователем **otus** (пароль **123**) и проверим, что система установилась на **GPT** раздел и был создан **EFI** раздел командой `lsblk -o +PTTYPE,PARTTYPENAME`:
 
-[!lsblk](images/lsblk.png)
+![lsblk](images/lsblk.png)
