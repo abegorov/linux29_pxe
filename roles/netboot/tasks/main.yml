@@ -1,0 +1,140 @@
+---
+- name: Create network boot directory
+  ansible.builtin.file:
+    path: '{{ netboot_dir }}'
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Format netboot disk
+  community.general.filesystem:
+    dev: '{{ netboot_disk }}'
+    fstype: ext4
+    opts: -L netboot
+    state: present
+
+- name: Mount netboot disk
+  ansible.posix.mount:
+    src: LABEL=netboot
+    path: '{{ netboot_dir }}'
+    fstype: ext4
+    opts: defaults
+    dump: 0
+    passno: 0
+    boot: true
+    state: mounted
+
+- name: Copy ipxe boot loader
+  ansible.builtin.copy:
+    src: /usr/share/ipxe/ipxe-x86_64.efi
+    dest: '{{ netboot_dir }}/ipxe.efi'
+    remote_src: true
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Update ipxe boot script
+  ansible.builtin.template:
+    src: script.pxe
+    dest: '{{ netboot_dir }}/{{ netboot_script }}'
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create ubuntu directory
+  ansible.builtin.file:
+    path: '{{ netboot_dir }}/ubuntu'
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create configs directory
+  ansible.builtin.file:
+    path: '{{ netboot_dir }}/ubuntu/configs'
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Update ubuntu user-data
+  ansible.builtin.template:
+    src: user-data
+    dest: '{{ netboot_dir }}/ubuntu/configs/user-data'
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Update ubuntu meta-data
+  ansible.builtin.template:
+    src: meta-data
+    dest: '{{ netboot_dir }}/ubuntu/configs/meta-data'
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Download ubuntu linux kernel
+  ansible.builtin.get_url:
+    url: '{{ netboot_ubuntu_linux }}'
+    dest: '{{ netboot_dir }}/ubuntu/linux'
+    owner: root
+    group: root
+    mode: '0644'
+    checksum: '{{ netboot_ubuntu_linux_checksum }}'
+  changed_when: false
+  async: 604800
+  poll: 0
+  register: download_ubuntu_linux
+
+- name: Download ubuntu initrd
+  ansible.builtin.get_url:
+    url: '{{ netboot_ubuntu_initrd }}'
+    dest: '{{ netboot_dir }}/ubuntu/initrd'
+    owner: root
+    group: root
+    mode: '0644'
+    checksum: '{{ netboot_ubuntu_initrd_checksum }}'
+  changed_when: false
+  async: 604800
+  poll: 0
+  register: download_ubuntu_initrd
+
+- name: Download ubuntu iso
+  ansible.builtin.get_url:
+    url: '{{ netboot_ubuntu_iso }}'
+    dest: '{{ netboot_dir }}/ubuntu/ubuntu.iso'
+    owner: root
+    group: root
+    mode: '0644'
+    checksum: '{{ netboot_ubuntu_iso_checksum }}'
+  changed_when: false
+  async: 604800
+  poll: 0
+  register: download_ubuntu_iso
+
+- name: Wait for download fast
+  ansible.builtin.async_status:
+    jid: '{{ item }}'
+  register: wait_for_download_fast
+  until: wait_for_download_fast.finished
+  retries: 10
+  delay: 5
+  loop:
+    - '{{ download_ubuntu_linux.ansible_job_id }}'
+    - '{{ download_ubuntu_initrd.ansible_job_id }}'
+    - '{{ download_ubuntu_iso.ansible_job_id }}'
+  failed_when: false
+
+- name: Wait for download slow
+  ansible.builtin.async_status:
+    jid: '{{ item }}'
+  register: wait_for_download_slow
+  until: wait_for_download_slow.finished
+  when: wait_for_download_fast.results | selectattr("finished", "eq", False)
+  retries: 10080
+  delay: 60
+  loop:
+    - '{{ download_ubuntu_linux.ansible_job_id }}'
+    - '{{ download_ubuntu_initrd.ansible_job_id }}'
+    - '{{ download_ubuntu_iso.ansible_job_id }}'

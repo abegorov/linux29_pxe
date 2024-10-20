@@ -1,0 +1,11 @@
+#!ipxe
+
+kernel {{ netboot_http_url }}/ubuntu/linux
+initrd {{ netboot_http_url }}/ubuntu/initrd
+imgargs linux initrd=initrd \
+  ip=:::::ens7:dhcp \
+  root=/dev/ram0 ramdisk_size=2800000 \
+  url={{ netboot_http_url }}/ubuntu/ubuntu.iso \
+  autoinstall \
+  ds=nocloud-net;s={{ netboot_http_url }}/ubuntu/configs/
+boot

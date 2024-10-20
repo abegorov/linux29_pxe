@@ -1,0 +1,24 @@
+#cloud-config
+autoinstall:
+  version: 1
+
+  drivers:
+    install: true
+
+  identity:
+    hostname: pxe-client
+    realname: otus
+    username: otus
+    password: $6$sJgo6Hg5zXBwkkI8$btrEoWAb5FxKhajagWR49XM4EAOfO/Dr5bMrLOkGe3KkMYdsh7T3MU5mYwY2TIMJpVKckAwnZFs2ltUJ1abOZ.
+
+  locale: en_US.UTF-8
+
+  keyboard:
+    layout: us
+    toggle: null
+    variant: ''
+
+  ssh:
+    allow-pw: true
+    authorized-keys: []
+    install-server: true
